@@ -20,8 +20,8 @@ int main() {
   x = cop; // copy assignment
 
   std::cout << "move assignment test" << std::endl;
-	String a("jack");
-	String b("fluy");
+	String a("wuyi");
+	String b("wuer");
   a = std::move(b); // move assignment
   std::cout << b << std::endl;
   std::cout << b.length() << std::endl;
@@ -47,7 +47,7 @@ int main() {
 
   std::cout << "operator+ test" << std::endl;
   String ad;
-	String bd("lucy");
+	String bd("wuyi");
 	String cd = ad + bd;
 	std::cout << cd << std::endl;
 
