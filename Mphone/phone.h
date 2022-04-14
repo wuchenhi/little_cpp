@@ -19,8 +19,6 @@ struct node {
 using Phone = struct node;
 /**
  * @description: 电话本管理系统
- * @param {*}
- * @return {*}
  */
 class PhoneManageSystem {
  private:
