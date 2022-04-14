@@ -1,11 +1,3 @@
-/*
- * @Author: 光城
- * @Date: 2021-05-11 08:07:55
- * @LastEditors: 光城
- * @LastEditTime: 2021-05-11 09:33:52
- * @Description:
- * @FilePath: \code\kg\phone\main.cpp
- */
 #include "phone.h"
 
 int main() {

@@ -1,11 +1,3 @@
-/*
- * @Author: 光城
- * @Date: 2021-05-11 08:25:13
- * @LastEditors: 光城
- * @LastEditTime: 2021-05-11 09:31:51
- * @Description:
- * @FilePath: \code\kg\phone\phone.h
- */
 #ifndef PHONE_H
 #define PHONE_H
 #include <iostream>
