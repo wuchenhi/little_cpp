@@ -153,6 +153,7 @@ inline void advance(InputIterator& i, Distance n)
 }
 
 
+
 /*  测试学习用
 template <class I>
 typename iterator_traits<I>::value_type

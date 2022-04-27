@@ -79,7 +79,7 @@ public:
         _destroy(p);
     }  
 
-    void destroy_n(pointer first, pointer end)      //== ~T()
+    void destroy(pointer first, pointer end)      //== ~T()
     {
         for( ;first != end, ++first)
             _destroy(first);

@@ -6,6 +6,7 @@
 
 #include "m_iterator.h"
 #include "m_allocator.h"
+#include "m_algo.h"
 
 #include "memory.h"
 
@@ -84,14 +85,25 @@ namespace poorstl
             begin_ = end_ = cap_ = nullptr;
             destroy_and_deallocate(begin_, end_);
         }
-        //TODO
-        vector &operator=(const vector &rhs);
-        vector &operator=(vector &&rhs) noexcept;
 
-        vector &operator=(std::initializer_list<value_type> ilist)
+        vector &operator=(const vector &rhs)
         {
-            vector tmp(ilist.begin(), ilist.end());
-            swap(tmp);
+            if (this != &rhs)
+            {
+                const auto len = rhs.size();
+                if (size() >= len)
+                {
+                    auto i = poorstl::copy(rhs.begin(), rhs.end(), begin());
+                    data_allocator::destroy(i, end_);
+                    end_ = begin_ + len;
+                }
+                else
+                { 
+                    poorstl::copy(rhs.begin(), rhs.begin() + size(), begin_);
+                    poorstl::uninitialized_copy(rhs.begin() + size(), rhs.end(), end_);//TODO
+                    cap_ = end_ = begin_ + len;
+                }
+            }
             return *this;
         }
 
@@ -163,8 +175,8 @@ namespace poorstl
 
         void pop_back()
         {
-          --end_;
-          allocator::destroy(end_);
+            --end_;
+            allocator::destroy(end_);
         }
 
         // insert
@@ -196,7 +208,7 @@ namespace poorstl
         iterator erase(iterator pos)
         {
             if(pos + 1 != end())
-                copy(pos +1, end_, pos);  //TODO
+                copy(pos +1, end_, pos);
             --end_;
             allocator::destroy(end_);
             return pos;
@@ -205,9 +217,9 @@ namespace poorstl
         iterator erase(iterator pos, size_type n)
         {
             if(pos + n != end())
-                copy(pos + n, end_, pos);  //TODO
+                copy(pos + n, end_, pos); 
             end_ -= n;  //TODO
-            allocator::destroy_n(end_ - n, end_);
+            allocator::destroy(end_ - n, end_);
             return pos;
         }
 
@@ -235,8 +247,23 @@ namespace poorstl
 template <class T>
 void vector<T>::destroy_and_deallocate(iterator first, iterator end)
 {
-    data_allocator::destroy_n(first, end);
+    data_allocator::destroy(first, end);
     data_allocator::deallocate(first);
+}
+
+
+// 非成员函数，重载比较操作符
+template <class T>
+bool operator==(const vector<T>& lhs, const vector<T>& rhs)
+{
+    return lhs.size() == rhs.size() &&
+        poorstl::equal(lhs.begin(), lhs.end(), rhs.begin());
+}
+
+template <class T>
+bool operator!=(const vector<T>& lhs, const vector<T>& rhs)
+{
+    return !(lhs == rhs);
 }
 
 } // namespace poorstl
