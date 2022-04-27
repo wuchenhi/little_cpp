@@ -25,7 +25,7 @@ inline void _deallocate(T* Mem)
 
 //placement new
 template <class T1, class T2>
-inline void _construct(T1 p, const T2& value)
+inline void _construct(T1* p, const T2& value)
 {
     new(p) T1(value);
 }
@@ -61,6 +61,12 @@ public:
     static void deallocate(pointer p)
     {
         _deallocate(p);
+    }
+
+    static void deallocate(pointer p, size_type n)
+    {
+        for(; n>0; --n)
+            _deallocate(p+n);
     }
 
     static void construct(pointer p, const T& value) //== new ((void*)p)  T(x) 

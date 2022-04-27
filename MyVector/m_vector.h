@@ -36,10 +36,15 @@ namespace poorstl
 
         iterator fill_n(iterator ans,size_type n, const T &value)
         {
+            /*  memset 可行
             if (n > 0)
             {
                 std::memset(ans, (unsigned char)value, (size_t)(n));
             }
+            */
+            iterator tmp = ans;
+            for( ; n > 0 ;--n, ++tmp)
+                data_allocator::construct(&*tmp, value);
             return ans + n;
         }
 
@@ -172,14 +177,41 @@ namespace poorstl
         }
 
         // 修改容器相关操作
+        //shrink 转换到新的空间
+        void shrink(iterator pos, const value_type &value)
+        {
+            const size_type old_size = size();
+            const size_type len = old_size != 0 ? 2* old_size : 1;
+            //init(len, value);
+            iterator new_begin = data_allocator::allocate(len);
+            iterator new_end = new_begin;
+            try{
+                new_end = uninit_copy(begin_, pos, new_begin);
+                data_allocator::construct(new_end, value);
+                ++new_end;
+                new_end = uninit_copy(pos, end_, new_end);
+            }
+            catch(...){
+                data_allocator::destroy(new_begin, new_end);
+                data_allocator::deallocate(new_begin, len);
+                throw;
+            }
+            data_allocator::destroy(begin(), end());
+            data_allocator::deallocate(begin_);
+            
+            begin_ = new_begin;
+            end_ = new_end;
+            cap_ =new_begin + len;
+        }
         // push_back / pop_back
         void push_back(const value_type &value)
         {
             if(end_ != cap_){
-                data_allocator::allocate(end_, value);
-                end_ = value;
+                data_allocator::construct(end_, value);
                 ++end_;
             }
+            else //无备用空间 
+                shrink(end(), value); 
         }
 
         void pop_back()
@@ -191,7 +223,7 @@ namespace poorstl
         // insert
         iterator insert(iterator pos, const value_type &value)
         {
-            if(end != cap_){
+            if(end_ != cap_){
                 copy(pos +1, end_, pos);  //TODO
                 data_allocator::construct(data_allocator::addr(*(begin() + pos)), value);
                 begin() + pos = value;                  
@@ -234,7 +266,7 @@ namespace poorstl
 
         void clear()
         { 
-            erase(begin(), end()); 
+            erase(begin(), size()); 
         }
 
         // resize / reverse
