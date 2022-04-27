@@ -19,7 +19,8 @@ inline T* _allocate(ptrdiff_t size, T*)
 template <class T>
 inline void _deallocate(T* Mem)
 {
-    ::operator delete Mem;
+    delete Mem;
+    //::operator delete Mem;
 }
 
 //placement new
@@ -47,26 +48,27 @@ public:
     typedef ptrdiff_t    difference_type;
 
 public:
-    allocator();    //default constructor
-    allocator(const allocator& );    //copy constructor
-    ~allocator();
+    allocator() = default;        //default constructor
 
-    pointer allocator(size_type n, const void* addr=0)  //addr ?
+    allocator(const allocator& ) = default;    //copy constructor
+    ~allocator() = default;
+
+    static pointer allocate(size_type n, const void* addr = 0)  //addr ?
     {
-        return _allocate((difference_type)n, pointer(0))
+        return _allocate((difference_type)n, (pointer)0);
     }
 
-    void dealloctor(pointer p, size_type n)
+    static void deallocate(pointer p)
     {
         _deallocate(p);
     }
 
-    void construct(pointer p, const T& value) //== new ((void*)p)  T(x) 
+    static void construct(pointer p, const T& value) //== new ((void*)p)  T(x) 
     {
         _construct(p, value);
     }
 
-    void construct(pointer p, size_type n, const T& value) //== new ((void*)p)  T(x) 
+    static void construct(pointer p, size_type n, const T& value) //== new ((void*)p)  T(x) 
     {
         for(size_type i=0; i < n; ++i){
             _construct(p+i, value);
@@ -74,29 +76,29 @@ public:
     }
 
 
-    void destroy(pointer p)      //== ~T()
+    static void destroy(pointer p)      //== ~T()
     {
         _destroy(p);
     }  
 
-    void destroy(pointer first, pointer end)      //== ~T()
+    static void destroy(pointer first, pointer end)      //== ~T()
     {
-        for( ;first != end, ++first)
+        for( ;first != end; ++first)
             _destroy(first);
     } 
 
     pointer addr(reference addr)
     {
-        return (pointer)&aadr;
+        return (pointer)&addr;
     }
 
     const_pointer const_addr(const_reference addr)
     {
-        return (const_pointer)&aadr;
+        return (const_pointer)&addr;
     }
 
     size_type max_size() const {
-        return size_type(UNIT_MAX/sizeof(T));
+        return size_type(UINT_MAX/sizeof(T));
     }
     
     };

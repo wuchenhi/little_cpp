@@ -34,7 +34,7 @@ namespace poorstl
         iterator end_;   // 表示目前使用空间的尾部
         iterator cap_;   // 表示目前储存空间的尾部
 
-        fill_n(iterator ans,size_type n, const T &value)
+        iterator fill_n(iterator ans,size_type n, const T &value)
         {
             if (n > 0)
             {
@@ -45,7 +45,7 @@ namespace poorstl
 
         iterator allocate_and_fill(size_type n, const T &value)
         {
-            iterator ans = data_allocator(n);
+            iterator ans = data_allocator::allocate(n);
             fill_n(ans, n, value);
             return ans;
         }
@@ -70,9 +70,9 @@ namespace poorstl
             init(n, value);
         }
 
-        vector(size_type n, const T &value) noexcept
+        vector(long n, const T &value) noexcept
         {
-            init(n, &value);
+            init(n, value);
         }
 
         explicit vector(size_type n) noexcept
@@ -94,13 +94,13 @@ namespace poorstl
                 if (size() >= len)
                 {
                     auto i = poorstl::copy(rhs.begin(), rhs.end(), begin());
-                    data_allocator::destroy(i, end_);
+                    data_allocator::destroy((pointer)i, (pointer)end());
                     end_ = begin_ + len;
                 }
                 else
                 { 
                     poorstl::copy(rhs.begin(), rhs.begin() + size(), begin_);
-                    poorstl::uninitialized_copy(rhs.begin() + size(), rhs.end(), end_);//TODO
+                    poorstl::uninit_copy(rhs.begin() + size(), rhs.end(), end_);//TODO
                     cap_ = end_ = begin_ + len;
                 }
             }
@@ -114,50 +114,59 @@ namespace poorstl
             return begin_;
         }
 
-        iterator end() noexcept
+        const iterator begin() const noexcept
+        {
+            return begin_;
+        }
+
+        iterator end()  noexcept
+        {
+            return end_;
+        }
+        const iterator end() const noexcept
         {
             return end_;
         }
 
         // 容量相关操作
-        bool empty() const noexcept
+        const bool empty() const noexcept
         {
             return begin_ == end_;
         }
 
-        size_type size() const noexcept
+        const size_type size() const noexcept
         {
             return static_cast<size_type>(end_ - begin_);
         }
 
 
-        size_type capacity() const noexcept
+        const size_type capacity() const noexcept
         {
             return static_cast<size_type>(cap_ - begin_);
         }
 
         // 访问元素相关操作
-        reference operator[](size_type n)
+        reference operator[](size_type n) const
         {
             return *(begin_ + n);
         }
 
-        reference at(size_type n)
+        reference at(size_type n) const
         {
             return (*this)[n];
         }
 
-        reference front()
+        reference front() const
         {
             return *begin_;
         }
 
-        reference back()
+        reference back() const
         {
             return *(end_ - 1);
         }
 
-        pointer data() noexcept 
+        pointer data() const noexcept 
         {
             return begin_; 
         }
@@ -167,7 +176,7 @@ namespace poorstl
         void push_back(const value_type &value)
         {
             if(end_ != cap_){
-                data_allocator(end_, value);
+                data_allocator::allocate(end_, value);
                 end_ = value;
                 ++end_;
             }
@@ -176,27 +185,27 @@ namespace poorstl
         void pop_back()
         {
             --end_;
-            allocator::destroy(end_);
+            data_allocator::destroy(end_);
         }
 
         // insert
-        iterator insert(const_iterator pos, const value_type &value)
+        iterator insert(iterator pos, const value_type &value)
         {
             if(end != cap_){
                 copy(pos +1, end_, pos);  //TODO
-                data_allocator::construct(poorstl::addr(*(begin() + pos)), value);
+                data_allocator::construct(data_allocator::addr(*(begin() + pos)), value);
                 begin() + pos = value;                  
                 }
             ++end_;
             return pos;
         }
 
-        iterator insert(const_iterator pos, size_type n, const value_type &value)
+        iterator insert(iterator pos, size_type n, const value_type &value)
         {
             if(end + n-1 != cap_){
                 copy(pos + n, end_, pos);  //TODO
                 //范围操作
-                data_allocator::construct(poorstl::addr(*(begin() + pos)),n, value);
+                data_allocator::construct(data_allocator::addr(*(begin() + pos)),n, value);
                 for(int i=0; i< n; ++i)
                     begin() + pos + i  = value;                  
                 }
@@ -210,7 +219,7 @@ namespace poorstl
             if(pos + 1 != end())
                 copy(pos +1, end_, pos);
             --end_;
-            allocator::destroy(end_);
+            data_allocator::destroy(end_);
             return pos;
         }
 
@@ -219,7 +228,7 @@ namespace poorstl
             if(pos + n != end())
                 copy(pos + n, end_, pos); 
             end_ -= n;  //TODO
-            allocator::destroy(end_ - n, end_);
+            data_allocator::destroy(end_ - n, end_);
             return pos;
         }
 
@@ -235,7 +244,7 @@ namespace poorstl
             if(new_size < size())
                 erase(begin() + new_size, size - new_size);
             else  
-                insert(end(), new_size - size, value));
+                insert(end(), new_size - size, value);
         }
 
     private:

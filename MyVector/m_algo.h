@@ -10,6 +10,7 @@
 
 namespace poorstl{
 
+
 // equal，比较第一序列在 [first, last)区间上的元素值是否和第二序列相等
 template <class InputIter1, class InputIter2>
 bool equal(InputIter1 first1, InputIter1 last1, InputIter2 first2)
@@ -75,13 +76,13 @@ unchecked_uninit_copy(InputIter first, InputIter last, ForwardIter result, std::
     {
         for (; first != last; ++first, ++cur)
         {
-            poorstl::construct(&*cur, *first);
+            poorstl::_construct(&*cur, *first);
         }
     }
     catch (...)
     {
         for (; result != cur; --cur)
-            poorstl::destroy(&*cur);
+            poorstl::_destroy(&*cur);
     }
     return cur;
 }

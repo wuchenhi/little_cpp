@@ -93,7 +93,7 @@ template <class InputIterator>
 inline typename iterator_traits<InputIterator>::difference_type    //是否需要 typename
 m_distance(InputIterator first, InputIterator last, input_iterator_tag)
 {
-    iterator_traits<InputIterator>::difference_type n = 0;         //是否需要 typename
+    typename iterator_traits<InputIterator>::difference_type n = 0;         //是否需要 typename
     while (first != last)
     {
         ++first;
@@ -116,7 +116,7 @@ template <class InputIterator>
 inline typename iterator_traits<InputIterator>::difference_type
 distance(InputIterator first, InputIterator last)
 {
-    typedef typename iterator_traits<Iterator>::iterator_category  category;
+    typedef typename iterator_traits<InputIterator>::iterator_category  category;
     return m_distance(first, last, category());
 }
 
