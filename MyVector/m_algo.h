@@ -51,6 +51,36 @@ copy_tag(RandomIter first, RandomIter last, OutputIter result,
   return result;
 }
 
+// input_iterator_tag 版本
+template <class InputIter, class OutputIter>
+OutputIter 
+copy_tag_backward(InputIter first, InputIter last, OutputIter result, 
+                   poorstl::input_iterator_tag)
+{
+    for (auto n = last -first; n>0; --n)
+    {
+        *--result = *--last;
+    }
+    return result;
+}
+
+// ramdom_access_iterator_tag 版本
+template <class RandomIter, class OutputIter>
+OutputIter 
+copy_tag_backward(RandomIter first, RandomIter last, OutputIter result,
+                   poorstl::random_access_iterator_tag)
+{
+    while (first != last)
+        *--result = *--last;
+    return result;
+}
+
+template <class InputIter, class OutputIter>
+OutputIter copy_backward(InputIter first, InputIter last, OutputIter result)
+{
+    return copy_tag_backward(first, last, result, iterator_category(first));
+}
+
 template <class InputIter, class OutputIter>
 OutputIter copy(InputIter first, InputIter last, OutputIter result)
 {

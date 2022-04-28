@@ -219,29 +219,60 @@ namespace poorstl
             --end_;
             data_allocator::destroy(end_);
         }
-
-        // insert
+         /*
+        // insert  TODO
         iterator insert(iterator pos, const value_type &value)
         {
             if(end_ != cap_){
-                copy(pos +1, end_, pos);  //TODO
+                copy(pos +1, end_, pos);  
                 data_allocator::construct(data_allocator::addr(*(begin() + pos)), value);
                 begin() + pos = value;                  
                 }
             ++end_;
             return pos;
         }
-
-        iterator insert(iterator pos, size_type n, const value_type &value)
+*/
+        iterator insert(iterator pos, const value_type &value)
         {
-            if(end + n-1 != cap_){
-                copy(pos + n, end_, pos);  //TODO
-                //范围操作
-                data_allocator::construct(data_allocator::addr(*(begin() + pos)),n, value);
-                for(int i=0; i< n; ++i)
-                    begin() + pos + i  = value;                  
+            if (end_ != cap_ && pos == end_)//末尾insert
+            {
+                data_allocator::construct(data_allocator::addr(*end_), value);
+                 ++end_;
+            }else if(end_ != cap_){
+                auto new_end = end_;
+                data_allocator::construct(data_allocator::addr(*end_), *(end_ - 1));//末尾往后移一位
+                ++new_end;
+                auto value_copy = value;  // 避免元素因以下复制操作而被改变
+                poorstl::copy_backward(pos, end_ - 1, end_);
+                *pos = value_copy;
+                end_ = new_end;
+            }else  //无备用空间
+            {
+                const size_type old_size = size();
+                const size_type len = old_size != 0 ? 2* old_size : 1;
+            
+                iterator new_begin = data_allocator::allocate(len);
+                iterator new_end = new_begin;
+                try{
+                    new_end = uninit_copy(begin_, pos, new_begin);
+                    data_allocator::construct(data_allocator::addr(*new_end), *(new_end - 1));//末尾往后移一位
+                    *new_end = value;
+                    ++new_end;
+                    //new_end = uninit_copy(pos, end_, new_end);
+                    new_end = uninit_copy(pos, end_, new_end);
                 }
-            end_ += n; //TODO
+                catch(...){
+                    data_allocator::destroy(new_begin, new_end);
+                    data_allocator::deallocate(new_begin, len);
+                    throw;
+                }
+                data_allocator::destroy(begin(), end());
+                data_allocator::deallocate(begin_);
+            
+                begin_ = new_begin;
+                end_ = new_end;
+                cap_ =new_begin + len;    
+            }
             return pos;
         }
 
@@ -274,9 +305,14 @@ namespace poorstl
         void resize(size_type new_size, const value_type &value)
         {
             if(new_size < size())
-                erase(begin() + new_size, size - new_size);
-            else  
-                insert(end(), new_size - size, value);
+                erase(begin() + new_size, size() - new_size);
+            else{
+                for (int n= new_size - size(); n>0; --n)
+                {
+                    insert(end(), value);
+                }    
+            } 
+                
         }
 
     private:

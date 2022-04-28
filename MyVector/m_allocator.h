@@ -93,12 +93,12 @@ public:
             _destroy(first);
     } 
 
-    pointer addr(reference addr)
+    static pointer addr(reference addr)
     {
         return (pointer)&addr;
     }
 
-    const_pointer const_addr(const_reference addr)
+    static const_pointer const_addr(const_reference addr)
     {
         return (const_pointer)&addr;
     }

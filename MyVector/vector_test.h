@@ -20,7 +20,7 @@ void vector_test()
   	std::cout << "[===============================================================]"<< std::endl;
   	std::cout << "[----------------- Run container test : vector -----------------]"<< std::endl;
   	std::cout << "[-------------------------- API test ---------------------------]"<< std::endl;
-  	poorstl::vector<int> v1;
+  	poorstl::vector<int> v1(10, 3);
   	poorstl::vector<int> v2(10, 2);
   	poorstl::vector<int> v3(10, 1);
   	poorstl::vector<int> v4; //还不能=运算符，像v3这样才行
@@ -76,15 +76,65 @@ void vector_test()
 	std::cout << "容量cap"<< std::endl;
 	std::cout << v2.capacity() << std::endl;
 
-	v2.insert(0, 10);
+
+	v2.insert(v2.begin(), 10); 
 	std::cout << "insert位置0以后第一个元素"<< std::endl;
 	std::cout << v2.front() << std::endl;
+	std::cout << "insert位置0以后最后一个元素"<< std::endl;
 	std::cout << v2.back() << std::endl;
 	std::cout << "size:"<< std::endl;
 	std::cout << v2.size() << std::endl;
 	std::cout << "容量cap"<< std::endl;
 	std::cout << v2.capacity() << std::endl;
 
+    std::cout << "[-----------------------空间不足insert ------------------------]"<< std::endl; 
+	v1.insert(v1.begin()+1, 10); 
+	std::cout << "v1insert位置1以后第一个元素"<< std::endl;
+	std::cout << v1.front() << std::endl;
+	std::cout << "v1insert位置1以后第2个元素"<< std::endl;
+	std::cout << v1[1]<< std::endl;
+	std::cout << "insert位置0以后最后一个元素"<< std::endl;
+	std::cout << v1.back() << std::endl;
+	std::cout << "size:"<< std::endl;
+	std::cout << v1.size() << std::endl;
+	std::cout << "容量cap"<< std::endl;
+	std::cout << v1.capacity() << std::endl;
+
+	v2.erase(v2.begin()); 
+	std::cout << "erase位置0以后第一个元素"<< std::endl;
+	std::cout << v2.front() << std::endl;
+	std::cout << "erase位置0以后最后一个元素"<< std::endl;
+	std::cout << v2.back() << std::endl;
+	std::cout << "size:"<< std::endl;
+	std::cout << v2.size() << std::endl;
+	std::cout << "容量cap"<< std::endl;
+	std::cout << v2.capacity() << std::endl;
+
+	std::cout << "[-----------------------resize 更小空间 ------------------------]"<< std::endl; 
+    poorstl::vector<int> v5(10, 1);
+	v5.resize(5);
+	std::cout << "reszie以后第一个元素"<< std::endl;
+	std::cout << v5.front() << std::endl;
+	std::cout << "最后一个元素"<< std::endl;
+	std::cout << v5.back() << std::endl;
+	std::cout << "size:"<< std::endl;
+	std::cout << v5.size() << std::endl;
+	std::cout << "容量cap"<< std::endl;
+	std::cout << v5.capacity() << std::endl;
+	std::cout << "[-----------------------resize 更大空间 ------------------------]"<< std::endl; 
+	v5.resize(20);
+	std::cout << "reszie以后第一个元素"<< std::endl;
+	std::cout << v5.front() << std::endl;
+	std::cout << "reszie以后第5个元素"<< std::endl;
+	std::cout << v5[4] << std::endl;
+	std::cout << "reszie以后第6个元素"<< std::endl;
+	std::cout << v5[5] << std::endl;
+	std::cout << "最后一个元素"<< std::endl;
+	std::cout << v5.back() << std::endl;
+	std::cout << "size:"<< std::endl;
+	std::cout << v5.size() << std::endl;
+	std::cout << "容量cap"<< std::endl;
+	std::cout << v5.capacity() << std::endl;
 }
 
 
