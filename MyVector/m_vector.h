@@ -1,20 +1,16 @@
 ﻿#ifndef m_VECTOR_H
 #define m_VECTOR_H
 
-#include <initializer_list>
-#include <string.h>
-
 #include "m_iterator.h"
 #include "m_allocator.h"
 #include "m_algo.h"
-
-#include "memory.h"
 
 namespace poorstl
 {
     template <class T>
     class vector
-    {
+    {   
+        //编译期间的断言，叫静态断言   is_same 输入的类型是否是指定的模板类型
         static_assert(!std::is_same<bool, T>::value, "vector<bool> is abandoned in poorstl");
 
     public:
@@ -203,6 +199,7 @@ namespace poorstl
             end_ = new_end;
             cap_ =new_begin + len;
         }
+
         // push_back / pop_back
         void push_back(const value_type &value)
         {
@@ -213,25 +210,13 @@ namespace poorstl
             else //无备用空间 
                 shrink(end(), value); 
         }
-
         void pop_back()
         {
             --end_;
             data_allocator::destroy(end_);
         }
-         /*
-        // insert  TODO
-        iterator insert(iterator pos, const value_type &value)
-        {
-            if(end_ != cap_){
-                copy(pos +1, end_, pos);  
-                data_allocator::construct(data_allocator::addr(*(begin() + pos)), value);
-                begin() + pos = value;                  
-                }
-            ++end_;
-            return pos;
-        }
-*/
+
+        //insert
         iterator insert(iterator pos, const value_type &value)
         {
             if (end_ != cap_ && pos == end_)//末尾insert
@@ -276,7 +261,7 @@ namespace poorstl
             return pos;
         }
 
-        // erase / clear
+        // erase
         iterator erase(iterator pos)
         {
             if(pos + 1 != end())
@@ -294,13 +279,13 @@ namespace poorstl
             data_allocator::destroy(end_ - n, end_);
             return pos;
         }
-
+        //clear
         void clear()
         { 
             erase(begin(), size()); 
         }
 
-        // resize / reverse
+        // resize
         void resize(size_type new_size) { return resize(new_size, value_type()); }
         void resize(size_type new_size, const value_type &value)
         {

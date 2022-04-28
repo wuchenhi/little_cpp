@@ -121,7 +121,7 @@ void vector_test()
 	std::cout << v5.size() << std::endl;
 	std::cout << "容量cap"<< std::endl;
 	std::cout << v5.capacity() << std::endl;
-	
+
 	std::cout << "[-----------------------resize 更大空间 ------------------------]"<< std::endl; 
 	v5.resize(20);
 	std::cout << "reszie以后第一个元素"<< std::endl;
@@ -136,6 +136,24 @@ void vector_test()
 	std::cout << v5.size() << std::endl;
 	std::cout << "容量cap"<< std::endl;
 	std::cout << v5.capacity() << std::endl;
+
+	std::cout << "[-----------------------重载运算符 ------------------------]"<< std::endl;
+  	poorstl::vector<int> v6(10, 1);
+  	poorstl::vector<int> v7(10, 1);
+  	poorstl::vector<int> v8(10, 2);
+	std::cout << "v6 == v7" << std::endl;
+	std::cout << (v6 == v7) << std::endl;
+	std::cout << "v6 != v7" << std::endl;
+	std::cout << (v6 != v7) << std::endl;	
+	std::cout << "v6 == v8" << std::endl;	
+	std::cout << (v6 == v8) << std::endl;
+	std::cout << "v6 != v8" << std::endl;
+	std::cout << (v6 != v8) << std::endl;
+
+	std::cout << "[-----------------------vetor<bool>-----------------------]"<< std::endl;
+	//poorstl::vector<bool> v9(10, 1);  //报错
+
+
 }
 
 

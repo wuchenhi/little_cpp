@@ -8,24 +8,24 @@
 namespace poorstl
 {
 
-// 五种迭代器类型 
-// 通过继承，不必再写“单纯只做传递调用”的函数
+//五种迭代器类型 
+//通过继承，不必再写“单纯只做传递调用”的函数
 struct input_iterator_tag {};
 struct output_iterator_tag {};
 struct forward_iterator_tag : public input_iterator_tag {};
 struct bidirectional_iterator_tag : public forward_iterator_tag {};
 struct random_access_iterator_tag : public bidirectional_iterator_tag {};
 
-// iterator 模板
+//iterator 模板
 template <class Category, class T, class Distance = ptrdiff_t,
-  class Pointer = T*, class Reference = T&>
-  struct iterator
+    class Pointer = T*, class Reference = T&>
+    struct iterator
 {
-  typedef Category    iterator_category;
-  typedef T           value_type;
-  typedef Pointer     pointer;
-  typedef Reference   reference;
-  typedef Distance    difference_type;
+    typedef Category    iterator_category;
+    typedef T           value_type;
+    typedef Pointer     pointer;
+    typedef Reference   reference;
+    typedef Distance    difference_type;
 };
 
 //traits
