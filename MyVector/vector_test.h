@@ -4,16 +4,14 @@
 
 #include "m_vector.h"
 
-// vector test : 测试 vector 的接口与 push_back 的性能
+// vector test : 测试 vector 的接口
 
 #include <vector>
 
 #include "m_vector.h"
-//#include "test.h"
 
 namespace poorstl
 {
-
 
 void vector_test()
 {
@@ -60,6 +58,7 @@ void vector_test()
 	v3.clear();
 	std::cout << "是否为空"<< std::endl;
 	std::cout << v3.empty() << std::endl;
+	std::cout << "[-----------------------push back ------------------------]"<< std::endl; 
 	v2.push_back(3);
 	std::cout << "push以后最后一个元素"<< std::endl;
 	std::cout << v2.back() << std::endl;
@@ -67,7 +66,7 @@ void vector_test()
 	std::cout << v2.size() << std::endl;
 	std::cout << "容量cap"<< std::endl;
 	std::cout << v2.capacity() << std::endl;
-
+	std::cout << "[-----------------------pop back ------------------------]"<< std::endl; 
 	v2.pop_back();
 	std::cout << "pop以后最后一个元素"<< std::endl;
 	std::cout << v2.back() << std::endl;
@@ -76,7 +75,7 @@ void vector_test()
 	std::cout << "容量cap"<< std::endl;
 	std::cout << v2.capacity() << std::endl;
 
-
+	std::cout << "[----------------------- insert ------------------------]"<< std::endl; 
 	v2.insert(v2.begin(), 10); 
 	std::cout << "insert位置0以后第一个元素"<< std::endl;
 	std::cout << v2.front() << std::endl;
@@ -100,6 +99,7 @@ void vector_test()
 	std::cout << "容量cap"<< std::endl;
 	std::cout << v1.capacity() << std::endl;
 
+	std::cout << "[--------------------------erase-----------------------------]"<< std::endl; 
 	v2.erase(v2.begin()); 
 	std::cout << "erase位置0以后第一个元素"<< std::endl;
 	std::cout << v2.front() << std::endl;
@@ -121,6 +121,7 @@ void vector_test()
 	std::cout << v5.size() << std::endl;
 	std::cout << "容量cap"<< std::endl;
 	std::cout << v5.capacity() << std::endl;
+	
 	std::cout << "[-----------------------resize 更大空间 ------------------------]"<< std::endl; 
 	v5.resize(20);
 	std::cout << "reszie以后第一个元素"<< std::endl;
