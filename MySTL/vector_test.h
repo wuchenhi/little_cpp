@@ -6,8 +6,6 @@
 
 // vector test : 测试 vector 的接口
 
-#include <vector>
-
 #include "m_vector.h"
 
 namespace poorstl

@@ -6,6 +6,8 @@
 #include <cstring>
 #include <type_traits>
 
+#include <cstddef>
+
 #include "m_iterator.h"
 
 namespace poorstl{
@@ -124,6 +126,35 @@ ForwardIter uninit_copy(InputIter first, InputIter last, ForwardIter result)
                                             std::is_trivially_copy_assignable<typename iterator_traits<ForwardIter>:: value_type>{});//如果类型 Ty 是具有普通复制赋值运算符的类，则类型谓词的实例为 true；否则为 false。
 }
 
+// move
+template <class T>
+typename std::remove_reference<T>::type&& move(T&& arg) noexcept
+{
+    return static_cast<typename std::remove_reference<T>::type&&>(arg);
 }
 
+// forward
+template <class T>
+T&& forward(typename std::remove_reference<T>::type& arg) noexcept
+{
+    return static_cast<T&&>(arg);
+}
+
+template <class T>
+T&& forward(typename std::remove_reference<T>::type&& arg) noexcept
+{
+    static_assert(!std::is_lvalue_reference<T>::value, "bad forward");
+    return static_cast<T&&>(arg);
+}
+
+// swap
+template <class Tp>
+void swap(Tp& lhs, Tp& rhs)
+{
+    auto tmp(poorstl::move(lhs));
+    lhs = poorstl::move(rhs);
+    rhs = poorstl::move(tmp);
+}
+
+}
 #endif
