@@ -1,16 +1,17 @@
 /**
- * @file test.cpp
+ * @file string_test.h
  * @author wuyi
- * 编译： g++ test.cpp string.cpp -std=c++11 -fno-elide-constructors -o test
+ * 编译： -std=c++11 -fno-elide-constructors
  * @date 2022-04-11
  */
 
 #include <iostream>
 #include <cstring>
-#include <vector>
 #include "string.h"
 
-int main() {
+namespace poorstl
+{
+void string_test(){
 
   std::cout << "copy constructor test" << std::endl;
   String x("xxx");
@@ -56,5 +57,6 @@ int main() {
 
   std::cout << "legth() test" << std::endl;
 	std::cout << cd.length() << std::endl;
-  return 0;
 }
+
+} // namespace poolstl

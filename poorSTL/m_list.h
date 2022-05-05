@@ -127,8 +127,7 @@ public:
     list(size_type n, const T& value)
     { fill_init(n, value); }
 
-    template <class Iter, typename std::enable_if<poorstl::is_input_iterator<Iter>::value, int>::type = 0>
-     list(Iter first, Iter last)
+    template <class Iter, typename std::enable_if<poorstl::is_input_iterator<Iter>::value, int>::type = 0> list(Iter first, Iter last)
     { copy_init(first, last); }
 
     list(const list& rhs)
@@ -148,52 +147,82 @@ public:
       assign(rhs.begin(), rhs.end());
     }
     return *this;
-  }
+    }
 
-  list& operator=(list&& rhs) noexcept
-  {
-      clear();
-      splice(end(), rhs);
-      return *this;
-  }
-
-  ~list()
-  {
-    if (node_)
+    list& operator=(list&& rhs) noexcept
     {
         clear();
-        node_allocator::deallocate(node_);
-        node_ = nullptr;
-        size_ = 0;
+        splice(end(), rhs);
+        return *this;
     }
-  }
 
-  template <class ...Args>
-  node_pointer create_node(Args&& ...agrs)
-  {
-      node_pointer p = node_allocator::allocate(1);
-      try
-      {
-          data_allocator::construct(poorstl::address_of(p->value), poorstl::forward<Args>(args)...);
-          p->prev = nullptr;
-          p->next = nullptr;
-      }
-      catch (...)
-      {
-          node_allocator::deallocate(p);
-          throw;
-      }
-      return p;
-  }
+    ~list()
+    {
+        if (node_)
+        {
+            clear();
+            node_allocator::deallocate(node_);
+            node_ = nullptr;
+            size_ = 0;
+        }
+    }
 
-  void destroy_node(node_pointer p)
-  {
-      data_allocator::destroy(poorstl::address_of(p->value));
-      node_allocator::deallocate(p);
-  }
+    // 容器与 [first, last] 结点断开连接
+    void unlink_nodes(node_pointer first, node_pointer last)
+    {
+        first->prev->next = last->next;
+        last->next->prev = first->prev;
+    }
+
+    // 在 pos 处连接 [first, last] 的结点
+    void link_nodes(node_pointer pos, node_pointer first, node_pointer last)
+    {
+        pos->prev->next = first;
+        first->prev = pos->prev;
+        pos->prev = last;
+        last->next = pos;
+    }
+
+    void list<T>::splice(const_iterator pos, list& x, const_iterator it)
+    {
+        if (pos.node_ != it.node_ && pos.node_ != it.node_->next)
+        {
+            auto f = it.node_;
+
+            x.unlink_nodes(f, f);
+            link_nodes(pos.node_, f, f);
+
+            ++size_;
+            --x.size_;
+        }
+    }
+
+    template <class ...Args>
+    node_pointer create_node(Args&& ...agrs)
+    {
+        node_pointer p = node_allocator::allocate(1);
+        try
+        {
+            data_allocator::construct(poorstl::address_of(p->value), poorstl::forward<Args>(args)...);
+            p->prev = nullptr;
+            p->next = nullptr;
+        }
+        catch (...)
+        {
+            node_allocator::deallocate(p);
+            throw;
+        }
+        return p;
+    }
+
+    void destroy_node(node_pointer p)
+    {
+        data_allocator::destroy(poorstl::address_of(p->value));
+        node_allocator::deallocate(p);
+    }
 
     // 在尾部连接 [first, last] 结点
-    void link_nodes_at_back(base_ptr first, base_ptr last)
+    void link_nodes_at_back(node_pointer first, node_pointer last)
     {
         last->next = node_;
         first->prev = node_->prev;
@@ -201,77 +230,77 @@ public:
         node_->prev = last;
     }
 
-  // 用 n 个元素初始化容器
-  void fill_init(size_type n, const value_type& value)
-  {
-      node_ = node_allocator::allocate(1);
-      node_->unlink();
-      size_ = n;
-      try
-      {
-          for (; n > 0; --n)
-          {
-              auto node = create_node(value);
-              link_nodes_at_back(node, node);
-          }
-      }
-      catch (...)
-      {
-          clear();
-          node_allocator::deallocate(node_);
-          node_ = nullptr;
-          throw;
-      }
-  }
+    // 用 n 个元素初始化容器
+    void fill_init(size_type n, const value_type& value)
+    {
+        node_ = node_allocator::allocate(1);
+        node_->unlink();
+        size_ = n;
+        try
+        {
+            for (; n > 0; --n)
+            {
+                auto node = create_node(value);
+                link_nodes_at_back(node, node);
+            }
+        }
+        catch (...)
+        {
+            clear();
+            node_allocator::deallocate(node_);
+            node_ = nullptr;
+            throw;
+        }
+    }
 
-  //清空
-  void clear()
-  {
-      if (size_ != 0)
-      {
-          auto cur = node_->next;
-          for (node_pointer next = cur->next; cur != node_; cur = next, next = cur->next)
-          {
-              destroy_node(cur);
-          }
-          node_->unlink();
-          size_ = 0;
-      }
-  }
+    //清空
+    void clear()
+    {
+        if (size_ != 0)
+        {
+            auto cur = node_->next;
+            for (node_pointer next = cur->next; cur != node_; cur = next, next = cur->next)
+            {
+                destroy_node(cur);
+            }
+            node_->unlink();
+            size_ = 0;
+        }
+    }
 public:
-  // 迭代器相关操作
-  iterator begin()  noexcept  //环状，node指向末端的空白节点
-  { return node_->next; }
-  iterator end()    noexcept 
-  { return node_; }
+    // 迭代器相关操作
+    iterator begin()  noexcept  //环状，node指向末端的空白节点
+    { return node_->next; }
+    iterator end()    noexcept 
+    { return node_; }
 
-  // 容量相关操作
-  bool      empty()    const noexcept //末尾=头
-  { return node_->next == node_; }
+    // 容量相关操作
+    bool      empty()    const noexcept //末尾=头
+    { return node_->next == node_; }
 
-  size_type size()     const noexcept 
-  { return size_; }           
+    size_type size()     const noexcept 
+    { return size_; }           
 
-  // 访问元素相关操作
-  reference       front() 
-  { 
-      return *begin();
-  }
+    // 访问元素相关操作
+    reference       front() 
+    { 
+        return *begin();
+    }
 
-  const_reference front() const 
-  { 
-      return *begin(); 
-  }
+    const_reference front() const 
+    { 
+        eturn *begin(); 
+    }
 
-  reference       back() 
-  { 
-      return *(--end());
-  }
+    reference       back() 
+    { 
+        return *(--end());
+    }
 
-  const_reference back()  const 
-  { 
-      return *(--end());
-  }
+    const_reference back()  const 
+    { 
+        return *(--end());
+    }
 
 };
 
