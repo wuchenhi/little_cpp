@@ -11,6 +11,7 @@
 
 namespace poorstl
 {
+  
 void string_test(){
 
   std::cout << "copy constructor test" << std::endl;
