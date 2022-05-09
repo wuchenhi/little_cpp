@@ -6,8 +6,8 @@
 
 int main()
 {
-	//poorstl::string_test();
-	//poorstl::vector_test();
+	poorstl::string_test();
+	poorstl::vector_test();
 	poorstl::list_test();
 	return 0;
 }

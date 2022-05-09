@@ -96,6 +96,7 @@ public:
     // list 的嵌套型别定义
     typedef poorstl::allocator<T>                    allocator_type;
     typedef poorstl::allocator<T>                    data_allocator;
+
     typedef poorstl::allocator<list_node<T>>         node_allocator;
 
     typedef typename allocator_type::value_type      value_type;
@@ -108,20 +109,30 @@ public:
 
     typedef list_iterator<T>                         iterator;
 
+    //typedef list_node                            list_node;
     typedef list_node<T>*                            node_pointer;
-    allocator_type get_allocator() { return node_allocator(); }
+
+    //allocator_type get_allocator() { return node_allocator(); }
 
 private:
     node_pointer  node_;  // 指向末尾节点
-    size_type     size_;  // 大小
+    //size_type     size_;  // 大小
 
 public:
     // 构造、复制、移动、析构函数
+    //默认构造，不设元素值
     list() 
-    { create_node(value_type());}
+    {
+        init_empty();
+    }
 
-    list(const T& value)
-    { create_node(value); }
+    list(const T& value) 
+    {
+        init_empty();
+        insert(end(), value);
+        //init_value(value);
+        //node_ = create_node(value);
+    }
 
     /*
     template <class Iter, typename std::enable_if<poorstl::is_input_iterator<Iter>::value, int>::type = 0> list(Iter first, Iter last)
@@ -131,10 +142,10 @@ public:
     { copy_init(rhs.cbegin(), rhs.cend()); }
 
     list(list&& rhs) noexcept
-        :node_(rhs.node_), size_(rhs.size_)
+        :node_(rhs.node_) // size_(rhs.size_)
     {
     rhs.node_ = nullptr;
-    rhs.size_ = 0;
+    //rhs.size_ = 0;
     }
 
     list& operator=(const list& rhs)
@@ -146,6 +157,16 @@ public:
         return *this;
     }
     */
+
+    //TODO
+    list& operator=(list& rhs) noexcept
+    {
+        clear();
+        //TODO
+        splice(end(), rhs);
+        return *this;
+    }
+
     list& operator=(list&& rhs) noexcept
     {
         clear();
@@ -160,7 +181,6 @@ public:
             clear();
             node_allocator::deallocate(node_);
             node_ = nullptr;
-            size_ = 0;
         }
     }
 
@@ -172,11 +192,11 @@ public:
         insert(end(), value);
     }
 
-    void pop_front(const T& value){
+    void pop_front(){
         erase(begin());
     }
 
-    void pop_back(const T& value){
+    void pop_back(){
         iterator tmp = end();
         erase(--tmp);
     }
@@ -184,7 +204,7 @@ public:
     //清空
     void clear()
     {
-        if (size_ != 0)
+        if (node_->next != node_)  //不为空
         {
             //头节点
             auto cur = node_->next;
@@ -193,36 +213,35 @@ public:
                 destroy_node(cur);
             }
             node_->break_link();
-            size_ = 0;
         }
     }
 
     //移除值为value 的节点
     void remove(const T& value){
-        iterator begin = begin();
-        iterator end   = end();
-        while(begin != end){
-            iterator next = begin;
+        iterator begin_ = begin();
+        iterator end_   = end();
+        while(begin_ != end_){
+            iterator next = begin_;
             ++next;
-            if(*begin == value) {
-                erase(begin);
+            if(*begin_ == value) {
+                erase(begin_);
             }
-            begin = next;
+            begin_ = next;
         }
     }
 
     //删除 连续相同元素 只保留一个
     void unique(){
-        if(size_ == 0)
+        if(node_->next == node_)
             return;
-        iterator begin = begin();
-        iterator end   = end();
-        iterator next = begin;
-        while(++next != end){
-            if(*begin == * next)
+        iterator begin_ = begin();
+        iterator end_   = end();
+        iterator next = begin_;
+        while(++next != end_){
+            if(*begin_ == * next)
                 erase(next);
             else
-                begin = next;
+                begin_ = next;
             next = begin();  //修正next
         }
     }
@@ -232,8 +251,8 @@ public:
     {
         if(!x.empty())
             trans(pos, x.begin(), x.end());
-        size_ += x.size_;
-        x.size_ = 0;
+        //size_ += x.size_;
+        //x.size_ = 0;
     }
 
     //接合，it所指元素接合于pos之前
@@ -244,16 +263,16 @@ public:
         if(pos == it || pos == tmp)
             return;
         trans(pos, it, tmp);
-        ++size_;
+        //++size_;
     }
 
     //接合，it所指元素接合于pos之前
-    void splice(iterator pos, list&, iterator begin, iterator end)
+    void splice(iterator pos, list&, iterator begin_, iterator end_)
     {
-        if (begin != end)
-            trans(pos, begin, end);
-        for(auto tmp1 = begin, tmp2 = end; tmp1 != tmp2; ++tmp1)
-            ++size_;
+        if (begin_ != end_)
+            trans(pos, begin_, end_);
+        //for(auto tmp1 = begin, tmp2 = end; tmp1 != tmp2; ++tmp1)
+           // ++size_;
     }
 
     //x 合并到*this,两者必须已经递增排序
@@ -282,13 +301,13 @@ public:
         //空或只有一个元素，返回
         if(node_->next == node_ || node_->next->next == node_)
             return;
-        iterator begin = begin();
-        ++begin;
-        while (begin != end())
+        iterator begin_ = begin();
+        ++begin_;
+        while (begin_ != end())
         {
-            iterator tmp = begin;
-            ++begin;
-            trans(begin(), tmp, begin);
+            iterator tmp = begin_;
+            ++begin_;
+            trans(begin(), tmp, begin_);
         } 
     }
 
@@ -296,6 +315,14 @@ public:
         //TODO
     }
 protected:
+
+    void init_empty()
+    {
+        node_ = node_allocator::allocate(1);
+        node_->next = node_;
+        node_->prev = node_;
+    }
+
     //在pos位置插入值为value节点
     iterator insert(iterator pos, const T& value)
     {
@@ -329,7 +356,6 @@ protected:
             data_allocator::construct(data_allocator::addr(p->data), value);
             p->prev = p;
             p->next = p;
-            size_ = 1;
         }
         catch (...)
         {
@@ -347,15 +373,15 @@ protected:
     }
 
     //迁移操作
-    void trans(iterator pos, iterator begin, iterator end){
-        if(pos != end){
-           (*(*end.node_).prev).next = pos.node_;
-           (*(*begin).node_).next = end.node_;
-           (*(*pos.node_).prev).next = begin.node_;
+    void trans(iterator pos, iterator begin_, iterator end_){
+        if(pos != end_){
+           (*(*end_.node_).prev).next = pos.node_;
+           (*(*begin_.node_).prev).next = end_.node_;
+           (*(*pos.node_).prev).next = begin_.node_;
            node_pointer tmp = (*pos.node_).prev;
-           (*pos.node_).prev = (*end.node_).prev;
-           (*end.node_).prev = (*begin.node_).prev;
-           (*begin.node_).prev = tmp;
+           (*pos.node_).prev = (*end_.node_).prev;
+           (*end_.node_).prev = (*begin_.node_).prev;
+           (*begin_.node_).prev = tmp;
         }
     }
 
@@ -391,7 +417,7 @@ protected:
     {
         node_ = node_allocator::allocate(1);
         node_->unlink();
-        size_ = n;
+        //size_ = n;
         try
         {
             for (; n > 0; --n)
@@ -422,8 +448,19 @@ public:
     bool      empty()    const noexcept //末尾=头
     { return node_->next == node_; }
 
-    size_type size()     const noexcept 
-    { return size_; }           
+    size_type size()     noexcept //const
+    { 
+        size_type ans = 0;
+        //iterator first = begin();
+        //iterator last = end();
+        //while (first != last)
+        //{
+           // ++first;
+            //++ans;
+        //}
+        ans = static_cast<size_type>(distance(begin(), end()));
+        return ans;
+    }           
 
     // 访问元素相关操作
     reference       front() 
