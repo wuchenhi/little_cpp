@@ -96,7 +96,6 @@ public:
     // list 的嵌套型别定义
     typedef poorstl::allocator<T>                    allocator_type;
     typedef poorstl::allocator<T>                    data_allocator;
-
     typedef poorstl::allocator<list_node<T>>         node_allocator;
 
     typedef typename allocator_type::value_type      value_type;
@@ -109,14 +108,13 @@ public:
 
     typedef list_iterator<T>                         iterator;
 
-    //typedef list_node                            list_node;
     typedef list_node<T>*                            node_pointer;
 
-    //allocator_type get_allocator() { return node_allocator(); }
+    allocator_type get_allocator() { return node_allocator(); }
 
 private:
     node_pointer  node_;  // 指向末尾节点
-    //size_type     size_;  // 大小
+    //size_type     size_;  // 大小       不需要
 
 public:
     // 构造、复制、移动、析构函数
@@ -130,43 +128,45 @@ public:
     {
         init_empty();
         insert(end(), value);
-        //init_value(value);
-        //node_ = create_node(value);
     }
 
-    /*
-    template <class Iter, typename std::enable_if<poorstl::is_input_iterator<Iter>::value, int>::type = 0> list(Iter first, Iter last)
-    { copy_init(first, last); }
+    list(size_type n, const T& value) 
+    {
+        init_empty();
+        for(; n>0; --n)
+            insert(end(), value);
+    }
 
-    list(const list& rhs)
-    { copy_init(rhs.cbegin(), rhs.cend()); }
+/*
+    template <class Iter, typename std::enable_if<poorstl::is_input_iterator<Iter>::value, int>::type = 0> list(Iter first, Iter last)
+    { 
+        init_empty();
+        init_copy(first, last); 
+    }
+*/
+    list(list& rhs)
+    { 
+        init_empty();
+        init_copy(rhs.begin(), rhs.end()); 
+    }
+
 
     list(list&& rhs) noexcept
-        :node_(rhs.node_) // size_(rhs.size_)
+        :node_(rhs.node_)
     {
-    rhs.node_ = nullptr;
-    //rhs.size_ = 0;
+        rhs.node_ = nullptr;
     }
 
-    list& operator=(const list& rhs)
+    list& operator=(list& rhs) noexcept
     {
-        if (this != &rhs)
-        {
-            assign(rhs.begin(), rhs.end());
+        if (this != &rhs){
+            clear();
+            init_copy(rhs.begin(), rhs.end());
         }
         return *this;
     }
-    */
 
-    //TODO
-    list& operator=(list& rhs) noexcept
-    {
-        clear();
-        //TODO
-        splice(end(), rhs);
-        return *this;
-    }
-
+    //右值版本，rhs将被splice清空
     list& operator=(list&& rhs) noexcept
     {
         clear();
@@ -251,8 +251,6 @@ public:
     {
         if(!x.empty())
             trans(pos, x.begin(), x.end());
-        //size_ += x.size_;
-        //x.size_ = 0;
     }
 
     //接合，it所指元素接合于pos之前
@@ -263,7 +261,6 @@ public:
         if(pos == it || pos == tmp)
             return;
         trans(pos, it, tmp);
-        //++size_;
     }
 
     //接合，it所指元素接合于pos之前
@@ -271,8 +268,6 @@ public:
     {
         if (begin_ != end_)
             trans(pos, begin_, end_);
-        //for(auto tmp1 = begin, tmp2 = end; tmp1 != tmp2; ++tmp1)
-           // ++size_;
     }
 
     //x 合并到*this,两者必须已经递增排序
@@ -311,7 +306,11 @@ public:
         } 
     }
 
+    //不能使用STL的sort，只接受 RamdonAcessIterator
     void sort(){
+        //空或只有一个元素，返回
+        if(node_->next == node_ || node_->next->next == node_)
+            return;
         //TODO
     }
 protected:
@@ -411,19 +410,16 @@ protected:
         node_->prev = last;
     }
 
-    /*
-    // 用 n 个元素初始化容器
-    void fill_init(size_type n, const value_type& value)
+    // 以 [first, last) 初始化容器
+    void init_copy(iterator first, iterator last)
     {
-        node_ = node_allocator::allocate(1);
-        node_->unlink();
-        //size_ = n;
+        iterator begin_ = begin();
+        size_type n = poorstl::distance(first, last);
         try
         {
-            for (; n > 0; --n)
+            for (; n > 0; --n, ++first, ++begin_)
             {
-                auto node = create_node(value);
-                link_nodes_at_back(node, node);
+                insert(end(), first.node_->data);
             }
         }
         catch (...)
@@ -434,30 +430,29 @@ protected:
             throw;
         }
     }
-    */
-
 
 public:
     // 迭代器相关操作
     iterator begin()  noexcept  //环状，node指向末端的空白节点
     { return node_->next; }
+
+    //TODO
+    const iterator cbegin()  const noexcept
+    { return begin(); }
+
+    const iterator cend()   const noexcept 
+    { return node_; }
+
     iterator end()    noexcept 
     { return node_; }
 
     // 容量相关操作
-    bool      empty()    const noexcept //末尾=头
+    bool      empty()    const noexcept
     { return node_->next == node_; }
 
     size_type size()     noexcept //const
     { 
         size_type ans = 0;
-        //iterator first = begin();
-        //iterator last = end();
-        //while (first != last)
-        //{
-           // ++first;
-            //++ans;
-        //}
         ans = static_cast<size_type>(distance(begin(), end()));
         return ans;
     }           

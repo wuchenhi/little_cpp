@@ -26,7 +26,12 @@ void list_test()
     std::cout << "[-------------------------- API test ---------------------------]" << std::endl;
 
     poorstl::list<int> l1;
-
+    poorstl::list<int> l10(5, 1);
+    list<int>::iterator it;
+    for (it = l10.begin(); it != l10.end(); ++it) {
+        std::cout << *it << ' ';
+    }
+    std::cout << std::endl;
     std::cout <<"l1是否爲空" <<(l1.empty()) << std::endl;
     std::cout << "l1 size=" << l1.size() << std::endl;
     std::cout << "l1 begin=" << (*l1.begin()) << std::endl;
@@ -36,7 +41,6 @@ void list_test()
     }
     std::cout << "l1 size=" << l1.size() << std::endl;
 
-    list<int>::iterator it;
     for (it = l1.begin(); it != l1.end(); ++it) {
         std::cout << *it << ' ';
     }
@@ -132,7 +136,7 @@ void list_test()
         std::cout << *it << ' ';
     }
     std::cout << std::endl;
-    std::cout << "[------------------------ l7 operator=（右值） -------------------------]" << std::endl;
+    std::cout << "[------------------------ l7 operator=-- -------------------------]" << std::endl;
     for (it = l6.begin(); it != l6.end(); ++it) {
         std::cout << *it << ' ';
     }
@@ -167,6 +171,17 @@ void list_test()
     }
     std::cout << std::endl;
 
+    std::cout << "[-------------------------- l8 复制初始化 ---------------------------]" << std::endl;
+    for (it = l6.begin(); it != l6.end(); ++it) {
+        std::cout << *it << ' ';
+    }
+    std::cout << std::endl;
+
+    poorstl::list<int> l8(l6);
+    for (it = l8.begin(); it != l8.end(); ++it) {
+        std::cout << *it << ' ';
+    }
+    std::cout << std::endl;
 }
 
 }
