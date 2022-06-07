@@ -4,18 +4,4 @@
 
 ### 2、职工管理系统
 
-### 3、poorSTL
-
-#### 
-    1 allocater 、 iterator、algorithm
-
-#### 
-    2 string的实现
-
-#### 
-    3 vector的实现
-
-#### 
-    4 list的实现
-
-。。。未完待续
+### 3、socket文件传输\聊天室程序
