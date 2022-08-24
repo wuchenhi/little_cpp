@@ -1,6 +1,5 @@
 //有理数类，包括大小比较，有理数的加减乘除
 #include <iostream>
-#include <stdlib.h>
 
 class Rational {
 public:
