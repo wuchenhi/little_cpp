@@ -1,7 +1,7 @@
 /**
  * @file myRational.cpp
  * @author wuyi
- * @brief 有理数类 实现有理数加减乘除
+ * @brief 有理数类 实现有理数加减乘除 比较大小
  * @date 2022-08-24
  */
 
@@ -53,6 +53,17 @@ Rational Rational::operator/(Rational rhs) {
     int ansDenom = denominator_ * rhs.getNumerator();
     return Rational(ansNum, ansDenom);
 }
+
+bool Rational::operator>(Rational rhs) {
+    int tmp = numerator_ * rhs.denominator_ - denominator_ * rhs.numerator_;
+    return tmp > 0;
+}
+
+bool Rational::operator<(Rational rhs) {
+    int tmp = numerator_ * rhs.denominator_ - denominator_ * rhs.numerator_;
+    return tmp < 0;
+}
+
 
 void Rational::printRational() {
     if(numerator_ % denominator_ == 0) {

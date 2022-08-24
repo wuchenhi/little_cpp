@@ -35,4 +35,29 @@ int main() {
     std::cout << " = ";
     ans.printRational();
     std::cout << std::endl;
+
+    if(r1 > r2) {
+        r1.printRational();
+        std::cout << " > ";
+        r2.printRational();
+        std::cout << std::endl;
+    }else {
+        r1.printRational();
+        std::cout << " < ";
+        r2.printRational();
+        std::cout << std::endl;
+    }
+
+    if(r1 < r2) {
+        r1.printRational();
+        std::cout << " < ";
+        r2.printRational();
+        std::cout << std::endl;
+    }else {
+        r1.printRational();
+        std::cout << " > ";
+        r2.printRational();
+        std::cout << std::endl;
+    }
+     
 }
